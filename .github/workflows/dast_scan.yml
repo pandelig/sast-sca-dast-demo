@@ -13,12 +13,15 @@ jobs:
       - name: Checkout code
         uses: actions/checkout@v4
 
+      - name: Create Docker Network
+        run: docker network create zap-network
+
       - name: Build Flask Docker image # This step builds the image
-        run: docker build -t my-vulnerable-flask-app:latest ./vulnerable_flask_app
+        run: docker build -t my-vulnerable-flask-app ./vulnerable_flask_app
 
       # New step: Run the built container and map a port to the host
       - name: Run Flask Docker container
-        run: docker run -d --name flask-app-container -p 5000:5000 my-vulnerable-flask-app:latest
+        run: docker run -d --name flask-app-container -p 5000:5000 --network zap-network my-vulnerable-flask-app
 
       # Wait for the app to start (sleep is simple, a healthcheck loop is better)
       - name: Wait for app to start
@@ -36,7 +39,7 @@ jobs:
         # -x: XML report file
         # -a: Includes the AJAX spider
         run: |
-          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://vulnerable_app:5000 -I -r report.html -J report.json -x report.xml -a    
+          docker run -t --network zap-network -v $(pwd):/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://vulnerable_app:5000 -I -r report.html -J report.json -x report.xml -a    
 
       - name: Upload ZAP reports
         uses: actions/upload-artifact@v4 # https://github.com/marketplace/actions/upload-a-build-artifact
