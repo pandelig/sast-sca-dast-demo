@@ -12,13 +12,11 @@ jobs:
     services:
       # Run the vulnerable Flask app as a service
       vulnerable_app:
-        # Use the Dockerfile in our repository
-        image: my-vulnerable-flask-app
         # Build the image directly from the Dockerfile path
         # This requires the job to checkout the code first
         build:
           context: ./vulnerable_flask_app
-          dockerfile: ./vulnerable_flask_app/Dockerfile
+          dockerfile: Dockerfile
         ports:
           # Map the internal port 5000 to an external port on the host
           # GitHub Actions automatically assigns a free port and makes it available
@@ -51,9 +49,10 @@ jobs:
         # --auto: Enable the automation framework (more control)
         run: |
           # Use the full scan script which includes AJAX spidering
+          # The target URL 'http://vulnerable_app:5000' should work
+          # because GitHub Actions makes the service name resolvable.
           zap-full-scan.py -t http://vulnerable_app:5000 -I -r report.html -J report.json -x report.xml -a
-        # The target URL 'http://vulnerable_app:5000' should work
-        # because GitHub Actions makes the service name resolvable.
+    
 
       - name: Upload ZAP reports
         uses: actions/upload-artifact@v4 # https://github.com/marketplace/actions/upload-a-build-artifact
