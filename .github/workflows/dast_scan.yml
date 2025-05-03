@@ -39,7 +39,7 @@ jobs:
         # -x: XML report file
         # -a: Includes the AJAX spider
         run: |
-          docker run -t --network zap-network -v $(pwd):/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://vulnerable_app:5000 -I -r report.html -J report.json -x report.xml -a    
+          docker run -t --network zap-network -v $(pwd):/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://flask-app-container:5000 -I -r report.html -J report.json -x report.xml -a    
 
       - name: Upload ZAP reports
         uses: actions/upload-artifact@v4 # https://github.com/marketplace/actions/upload-a-build-artifact
