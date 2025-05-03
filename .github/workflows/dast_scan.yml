@@ -27,11 +27,15 @@ jobs:
       - name: Wait for app to start
         run: sleep 10 # Adjust if needed
 
+      # New step: Create a directory for ZAP reports on the runner
+      - name: Create ZAP reports directory
+        run: mkdir ${{ github.workspace }}/zap_reports
+
       - name: Run OWASP ZAP Full Scan
         # Use the full scan script, read more about the command and its flags here: https://www.zaproxy.org/docs/docker/full-scan/#usage
         # The target URL 'http://vulnerable_app:5000' should work because GitHub Actions makes the service name resolvable.
         run: |
-          docker run -t --network zap-network -v $(pwd):/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://flask-app-container:5000 -I -j -r report.html -J report.json -x report.xml -a    
+          docker run -t --network zap-network -v ${{ github.workspace }}/zap_reports:/zap/wrk/:rw ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://flask-app-container:5000 -I -j -r report.html -J report.json -x report.xml -a    
 
       # https://github.com/marketplace/actions/upload-a-build-artifact
       - name: Upload ZAP reports
@@ -40,8 +44,6 @@ jobs:
         if: always()
         with:
           name: zap-reports
-          path: |
-            report.html
-            report.json
-            report.xml
+          # Path on the runner where the reports were written via the volume mount
+          path: ${{ github.workspace }}/zap_reports/
           retention-days: 5
