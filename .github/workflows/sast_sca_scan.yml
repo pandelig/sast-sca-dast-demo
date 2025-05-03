@@ -37,7 +37,16 @@ jobs:
             -Dsonar.projectKey=pandelig_sast-sca-dast-ports-demo
             -Dsonar.sources=vulnerable_flask_app
 
+      # Check the Quality Gate status.
+      - name: SonarQube Quality Gate check
+        uses: sonarsource/sonarqube-quality-gate-action@v1
+        env:
+          SONAR_TOKEN: ${{ secrets.SONAR_TOKEN }}
+
+
       - name: Run pip-audit
+        # This step will run even if the previous SonarQube scan step fails
+        if: always()
         run: |
           pip install pip-audit
           pip-audit -r vulnerable_flask_app/requirements.txt

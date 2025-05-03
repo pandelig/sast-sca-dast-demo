@@ -16,7 +16,7 @@ jobs:
       - name: Create Docker Network
         run: docker network create zap-network
 
-      - name: Build Flask Docker image # This step builds the image
+      - name: Build Flask Docker image
         run: docker build -t my-vulnerable-flask-app ./vulnerable_flask_app
 
       # New step: Run the built container and map a port to the host
@@ -35,7 +35,6 @@ jobs:
       - name: Set ZAP reports directory permissions
         run: chmod 777 ${{ github.workspace }}/zap_reports
     
-
       - name: Run OWASP ZAP Full Scan
         # Use the full scan script, read more about the command and its flags here: https://www.zaproxy.org/docs/docker/full-scan/#usage
         # The target URL 'http://vulnerable_app:5000' should work because GitHub Actions makes the service name resolvable.
