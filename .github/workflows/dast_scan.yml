@@ -28,6 +28,7 @@ jobs:
         # Use the full scan script which includes AJAX spidering https://www.zaproxy.org/docs/docker/full-scan/#usage
         # The target URL 'http://vulnerable_app:5000' should work because GitHub Actions makes the service name resolvable.
         # Command to run the full scan
+        # -v: mount the `/zap/wrk/` directory, that's where the report files will go
         # -t: target URL
         # -I: Don't fail if no alerts are found (useful for testing)
         # -r: HTML report file
@@ -35,7 +36,7 @@ jobs:
         # -x: XML report file
         # -a: Includes the AJAX spider
         run: |
-          docker run -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://vulnerable_app:5000 -I -r report.html -J report.json -x report.xml -a    
+          docker run -v $(pwd):/zap/wrk/:rw -t ghcr.io/zaproxy/zaproxy:stable zap-full-scan.py -t http://vulnerable_app:5000 -I -r report.html -J report.json -x report.xml -a    
 
       - name: Upload ZAP reports
         uses: actions/upload-artifact@v4 # https://github.com/marketplace/actions/upload-a-build-artifact
