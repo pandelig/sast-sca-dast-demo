@@ -9,29 +9,18 @@ jobs:
   dast_checks:
     runs-on: ubuntu-latest
 
-    services:
-      # Run the vulnerable Flask app as a service
-      vulnerable_app:
-        # Use the image built in the 'Build Flask Docker image' step
-        image: my-vulnerable-flask-app:latest
-        ports:
-          # Map the internal port 5000 to an external port on the host
-          # GitHub Actions automatically assigns a free port and makes it available
-          - 5000/tcp
-        # Provide a command if needed, but our Dockerfile has CMD
-        # command: python app.py
-        # Add a healthcheck (optional but recommended)
-        options: --health-cmd "curl http://localhost:5000 || exit 1" --health-interval 5s --health-retries 5
-
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
 
-      - name: Build Flask Docker image # <--- New step to build the image
+      - name: Build Flask Docker image # This step builds the image
         run: docker build -t my-vulnerable-flask-app:latest ./vulnerable_flask_app
 
-      # Wait for the service to be healthy (more robust with healthcheck)
-      # For simplicity here, we'll just add a small delay
+      # New step: Run the built container and map a port to the host
+      - name: Run Flask Docker container
+        run: docker run -d --name flask-app-container -p 5000:5000 my-vulnerable-flask-app:latest
+
+      # Wait for the app to start (sleep is simple, a healthcheck loop is better)
       - name: Wait for app to start
         run: sleep 10 # Adjust if needed
 
