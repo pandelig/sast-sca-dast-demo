@@ -31,6 +31,11 @@ jobs:
       - name: Create ZAP reports directory
         run: mkdir ${{ github.workspace }}/zap_reports
 
+      # This grants write permissions to all users, ensuring the container user can write
+      - name: Set ZAP reports directory permissions
+        run: chmod 777 ${{ github.workspace }}/zap_reports
+    
+
       - name: Run OWASP ZAP Full Scan
         # Use the full scan script, read more about the command and its flags here: https://www.zaproxy.org/docs/docker/full-scan/#usage
         # The target URL 'http://vulnerable_app:5000' should work because GitHub Actions makes the service name resolvable.
