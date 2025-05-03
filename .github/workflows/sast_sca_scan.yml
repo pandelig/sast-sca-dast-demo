@@ -1,4 +1,4 @@
-name: Security Scan
+name: SAST & SCA Scan
 
 on: 
   push:
@@ -7,7 +7,7 @@ on:
 
 jobs:
   # Job ID (can be anything descriptive)
-  security_checks:
+  sast_sca_checks:
     runs-on: ubuntu-latest
     steps:
       - name: Checkout code

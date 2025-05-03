@@ -1,0 +1,66 @@
+name: DAST Scan
+
+on:
+  push:
+    branches: [ main ] # Runs on pushes to the main branch
+  workflow_dispatch: # Allows manual triggering from the Actions tab
+
+jobs:
+  dast_checks:
+    runs-on: ubuntu-latest
+
+    services:
+      # Run the vulnerable Flask app as a service
+      vulnerable_app:
+        # Use the Dockerfile in our repository
+        image: my-vulnerable-flask-app
+        # Build the image directly from the Dockerfile path
+        # This requires the job to checkout the code first
+        build:
+          context: ./vulnerable_flask_app
+          dockerfile: ./vulnerable_flask_app/Dockerfile
+        ports:
+          # Map the internal port 5000 to an external port on the host
+          # GitHub Actions automatically assigns a free port and makes it available
+          - 5000/tcp
+        # Provide a command if needed, but our Dockerfile has CMD
+        # command: python app.py
+        # Add a healthcheck (optional but recommended)
+        options: --health-cmd "curl http://localhost:5000 || exit 1" --health-interval 5s --health-retries 5
+
+    steps:
+      - name: Checkout code
+        uses: actions/checkout@v4
+
+      # Wait for the service to be healthy (more robust with healthcheck)
+      # For simplicity here, we'll just add a small delay
+      - name: Wait for app to start
+        run: sleep 10 # Adjust if needed
+
+      - name: Run OWASP ZAP Full Scan
+        # Use the official ZAP Docker image https://www.zaproxy.org/docs/docker/about/#stable
+        image: ghcr.io/zaproxy/zaproxy:stable
+        # Command to run the full scan
+        # -t: target URL
+        # -I: Don't fail if no alerts are found (useful for testing)
+        # -r: HTML report file
+        # -J: JSON report file
+        # -x: XML report file
+        # -a: Includes the AJAX spider
+        # -d: Set scan depth (optional, default might be enough)
+        # --auto: Enable the automation framework (more control)
+        run: |
+          # Use the full scan script which includes AJAX spidering
+          zap-full-scan.py -t http://vulnerable_app:5000 -I -r report.html -J report.json -x report.xml -a
+        # The target URL 'http://vulnerable_app:5000' should work
+        # because GitHub Actions makes the service name resolvable.
+
+      - name: Upload ZAP reports
+        uses: actions/upload-artifact@v4 # https://github.com/marketplace/actions/upload-a-build-artifact
+        with:
+          name: zap-reports
+          path: |
+            report.html
+            report.json
+            report.xml
+          retention-days: 5
