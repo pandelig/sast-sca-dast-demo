@@ -12,11 +12,8 @@ jobs:
     services:
       # Run the vulnerable Flask app as a service
       vulnerable_app:
-        # Build the image directly from the Dockerfile path
-        # This requires the job to checkout the code first
-        build:
-          context: ./vulnerable_flask_app
-          dockerfile: Dockerfile
+        # Use the image built in the 'Build Flask Docker image' step
+        image: my-vulnerable-flask-app:latest
         ports:
           # Map the internal port 5000 to an external port on the host
           # GitHub Actions automatically assigns a free port and makes it available
@@ -29,6 +26,9 @@ jobs:
     steps:
       - name: Checkout code
         uses: actions/checkout@v4
+
+      - name: Build Flask Docker image # <--- New step to build the image
+        run: docker build -t my-vulnerable-flask-app:latest ./vulnerable_flask_app
 
       # Wait for the service to be healthy (more robust with healthcheck)
       # For simplicity here, we'll just add a small delay
@@ -45,8 +45,6 @@ jobs:
         # -J: JSON report file
         # -x: XML report file
         # -a: Includes the AJAX spider
-        # -d: Set scan depth (optional, default might be enough)
-        # --auto: Enable the automation framework (more control)
         run: |
           # Use the full scan script which includes AJAX spidering
           # The target URL 'http://vulnerable_app:5000' should work
