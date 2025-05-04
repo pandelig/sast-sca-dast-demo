@@ -1,6 +1,6 @@
 # Security in DevOps Tutorials: SAST, SCA, and DAST
 
-This repository contains the code examples and workflows accompanying my series introducing key application security testing methodologies: Static Application Security Testing (SAST), Software Composition Analysis (SCA), and Dynamic Application Security Testing (DAST) within a DevOps context.
+This repository contains the code examples and workflows accompanying my series of blog posts introducing key application security testing methodologies: Static Application Security Testing (SAST), Software Composition Analysis (SCA), and Dynamic Application Security Testing (DAST) within a DevOps context.
 
 The tutorial series guides you through building a simple, intentionally vulnerable Flask application and using various security tools to identify its weaknesses, integrating these scans into a GitHub Actions CI/CD pipeline.
 
