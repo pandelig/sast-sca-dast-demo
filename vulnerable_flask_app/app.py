@@ -15,7 +15,7 @@ def index():
         <li><a href="/admin">Admin Area (contains a secret!)</a></li>
     </ul>
     
-    <a href="https://github.com/pandelig/sast-sca-dast-ports-demo" target="_blank">GitHub Repo↗</a></li>
+    <a href="https://github.com/pandelig/sast-sca-dast-demo" target="_blank">GitHub Repo↗</a></li>
     """
 
 @app.route('/hello')
